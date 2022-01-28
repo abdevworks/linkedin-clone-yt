@@ -8,7 +8,12 @@ import CalendarViewDayIcon from "@mui/icons-material/CalendarViewDay";
 import Post from "./Post";
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  onSnapshot
+} from "firebase/firestore";
 
 function Feed() {
   const [input, setInput] = useState("");
@@ -17,24 +22,40 @@ function Feed() {
 
   useEffect(() => {
     const getPosts = async () => {
-      const data = await getDocs(postsCollectionRef);
-      console.log(data);
-      setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      onSnapshot(postsCollectionRef, (snapshot) => {
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }))
+        );
+        setInput("");
+      });
     };
 
     getPosts();
   }, []);
 
-  const sendPost = async (e) => {
+  const sendPost = (e) => {
     e.preventDefault();
 
-    await addDoc(postsCollectionRef, {
-      name: "Arkadiusz Biesiada",
-      description: "this is a test",
-      message: input,
-      photoUrl: "",
-      // timestamp: FieldValue.serverTimestamp(),
-    });
+    const addPost = async () => {
+      await addDoc(postsCollectionRef, {
+        name: "Arkadiusz Biesiada",
+        description: "this is a test",
+        message: input,
+        photoUrl: "",
+        timestamp: serverTimestamp(),
+      });
+      // const data = await getDocs(postsCollectionRef);
+      // setPosts(
+      //   data.docs.map((doc) => ({
+      //     ...doc.data(),
+      //     id: doc.id,
+      //   }))
+      // );
+    };
+    addPost();
   };
 
   return (
@@ -66,7 +87,7 @@ function Feed() {
       </div>
 
       {/* {Posts} */}
-      {posts.map(({id, name, description, message, photoUrl}) => (
+      {posts.map(({ id, name, description, message, photoUrl }) => (
         <Post
           key={id}
           id={id}
@@ -76,15 +97,6 @@ function Feed() {
           photoUrl={photoUrl}
         />
       ))}
-      {/* {posts.map(({ id, data: { name, description, message, photoUrl } }) => (
-        <Post
-          key={id}
-          name={name}
-          description={description}
-          message={message}
-          photoUrl={photoUrl}
-        />
-      ))} */}
     </div>
   );
 }
