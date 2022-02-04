@@ -16,11 +16,14 @@ import {
   query,
   orderBy
 } from "firebase/firestore";
+import { useSelector } from "react-redux";
+import { selectUser } from "./features/userSlice";
 
 function Feed() {
   const [input, setInput] = useState("");
   const [posts, setPosts] = useState([]);
   const postsCollectionRef = collection(db, "posts");
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     const getPosts = async () => {
@@ -43,10 +46,10 @@ function Feed() {
 
     const addPost = async () => {
       await addDoc(postsCollectionRef, {
-        name: "Arkadiusz Biesiada",
-        description: "this is a test",
+        name: user.displayName,
+        description: user.email,
         message: input,
-        photoUrl: "",
+        photoUrl: user.photoUrl || "",
         timestamp: serverTimestamp(),
       });
     };
