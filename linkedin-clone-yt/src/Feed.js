@@ -14,10 +14,11 @@ import {
   serverTimestamp,
   onSnapshot,
   query,
-  orderBy
+  orderBy,
 } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { selectUser } from "./features/userSlice";
+import FlipMove from 'react-flip-move';
 
 function Feed() {
   const [input, setInput] = useState("");
@@ -27,7 +28,7 @@ function Feed() {
 
   useEffect(() => {
     const getPosts = async () => {
-      const q = query(postsCollectionRef, orderBy('timestamp', 'desc'))
+      const q = query(postsCollectionRef, orderBy("timestamp", "desc"));
       onSnapshot(q, (snapshot) => {
         setPosts(
           snapshot.docs.map((doc) => ({
@@ -53,7 +54,7 @@ function Feed() {
         timestamp: serverTimestamp(),
       });
     };
-    addPost();        
+    addPost();
     setInput("");
   };
 
@@ -86,16 +87,18 @@ function Feed() {
       </div>
 
       {/* {Posts} */}
-      {posts.map(({ id, name, description, message, photoUrl }) => (
-        <Post
-          key={id}
-          id={id}
-          name={name}
-          description={description}
-          message={message}
-          photoUrl={photoUrl}
-        />
-      ))}
+      <FlipMove>
+        {posts.map(({ id, name, description, message, photoUrl }) => (
+          <Post
+            key={id}
+            id={id}
+            name={name}
+            description={description}
+            message={message}
+            photoUrl={photoUrl}
+          />
+        ))}
+      </FlipMove>
     </div>
   );
 }
